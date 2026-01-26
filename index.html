@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Capital Allocator - Python Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Capital Allocator</h1>
+
+        <!-- Income -->
+        <div class="card">
+            <h2>Income Source</h2>
+            <div class="input-group">
+                <label>Monthly Income (Post-Tax)</label>
+                <input type="text" id="income" placeholder="e.g. 1,00,000">
+            </div>
+        </div>
+
+        <!-- Detailed Fixed Costs -->
+        <div class="card">
+            <h2>Fixed Monthly Expenses</h2>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Rent / Housing</label>
+                    <input type="text" id="cost_rent" class="cost-input" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Groceries & Food</label>
+                    <input type="text" id="cost_food" class="cost-input" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Transport & Fuel</label>
+                    <input type="text" id="cost_transport" class="cost-input" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Utilities & Bills</label>
+                    <input type="text" id="cost_utilities" class="cost-input" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Other Fixed Costs</label>
+                    <input type="text" id="cost_other" class="cost-input" placeholder="0">
+                </div>
+            </div>
+            <div style="text-align: right; color: var(--text-muted); font-size: 14px; margin-top: 10px;">
+                Total Fixed: <span id="total-fixed" style="color:white; font-weight:bold;">₹0</span>
+            </div>
+        </div>
+
+        <!-- Loan Manager -->
+        <div class="card">
+            <h2>Loan Manager</h2>
+            <div class="loans-header">
+                <span>Name</span>
+                <span>Original</span>
+                <span>Outstanding</span>
+                <span>EMI</span>
+                <span>ROI%</span>
+                <span>Tenure(M)</span>
+                <span>Left(M)</span>
+                <span></span>
+            </div>
+            <div id="loans-list"></div>
+            <div style="margin-top: 16px;">
+                <button class="secondary">+ Add Loan</button>
+            </div>
+        </div>
+
+        <button class="primary">Run Simulation</button>
+
+        <div id="output" class="results-grid"></div>
+    </div>
+
+    <!-- Modular Entry Point -->
+    <script type="module" src="src/pages/index.js"></script>
+</body>
+
+</html>

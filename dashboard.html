@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dashboard - Capital Allocator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .btn-back {
+            background: #1e293b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid #334155;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: #020617;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #1e293b;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #94a3b8;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="strat-name">Interactive Dashboard</h1>
+            <a href="index.html" class="btn-back">← Back to Inputs</a>
+        </div>
+
+        <div class="grid">
+            <!-- Controls -->
+            <div class="card">
+                <h2>Allocation Controls</h2>
+                <div id="controls"></div>
+
+                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #1e293b;">
+                    <div class="control-header">
+                        <span>Total Allocated</span>
+                        <span id="totalAllocated">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div>
+                <div class="card">
+                    <h2>Monthly Net Worth & Assets (5 Years)</h2>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Yearly Wealth Accumulation</h2>
+                    <div class="chart-container">
+                        <canvas id="yearlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular Entry Point -->
+    <script type="module" src="src/pages/dashboard.js"></script>
+</body>
+
+</html>
