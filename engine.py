@@ -36,6 +36,100 @@ class Loan:
             
         return actual_payment, interest, principal_comp
 
+def run_custom_simulation(loans_data, allocations, months=60):
+    """
+    Runs a simulation based on specific user allocations (from sliders).
+    Implements Avalanche (Highest ROI first) and Snowball (Freed cashflow redirects to Investments).
+    """
+    # Deep copy loans
+    loans = [Loan(l['name'], l['principal'], l['roi'], l['emi'], l.get('tenure', 0), l.get('months_left', 0)) for l in loans_data]
+    
+    extra_debt_alloc = float(allocations.get("Extra Debt Payment", 0))
+    invest_alloc = float(allocations.get("Investments", 0))
+    # Fun Money is usually consumed or saved separately, we simulate it as cash growth or ignore for NW?
+    # For consistency with JS, we'll track it in cash but usually it's "spent". 
+    # Let's assume Fun Money is consumed unless specified. The prompt asked for "Investments" path.
+    # We will focus on Net Worth = Investments - Debt.
+    
+    debt_path = []
+    investment_path = []
+    net_worth_path = []
+    labels = []
+    
+    current_inv = 0
+    equity_return = 0.10 / 12
+
+    # Calculate Base Mandated EMI Total (Constant sum of original EMIs)
+    # This represents the "Debt Commitment" that the user is used to paying.
+    base_emi_total = sum(l.emi for l in loans)
+    
+    for m in range(months):
+        # A. Investment Growth
+        current_inv = current_inv * (1 + equity_return)
+        
+        # B. Debt Payment Logic
+        # The pool available for debt is (Mandatory EMIs of all loans) + (User Extra Allocation)
+        # Even if a loan finishes, its EMI portion stays in the pool (Snowball method) to attack others or invest.
+        monthly_debt_budget = base_emi_total + extra_debt_alloc
+        
+        # 1. Mandatory Minimums first
+        for loan in loans:
+            if loan.principal <= 0: continue
+            
+            interest = loan.principal * loan.monthly_rate
+            amount_due = loan.emi
+            
+            # Pay minimum needed
+            amount_to_clear = loan.principal + interest
+            payment = min(amount_due, amount_to_clear)
+            
+            monthly_debt_budget -= payment
+            
+            # Apply payment directly (we can bypass simulate_month helper for granular control or use it)
+            # Let's do manual calc to be precise with the pool
+            principal_comp = payment - interest
+            loan.principal -= principal_comp
+            if loan.principal < 0: loan.principal = 0
+            
+        # 2. Surplus Allocation (Avalanche - Highest ROI)
+        if monthly_debt_budget > 0.01:
+            # Sort active loans by ROI descending
+            active_loans = sorted([l for l in loans if l.principal > 0], key=lambda x: x.roi, reverse=True)
+            
+            for loan in active_loans:
+                if monthly_debt_budget <= 0: break
+                
+                principal_remaining = loan.principal
+                # Extra payment goes 100% to principal
+                extra_payment = min(monthly_debt_budget, principal_remaining)
+                
+                loan.principal -= extra_payment
+                monthly_debt_budget -= extra_payment
+        
+        # 3. Snowball Redirection (Flow to Investments)
+        # Whatever is LEFT in monthly_debt_budget after paying minimums and killing all debt...
+        # ...is money that USED to go to debt, now free.
+        if monthly_debt_budget > 0:
+            current_inv += monthly_debt_budget
+            
+        # 4. Standard Investment Allocation
+        current_inv += invest_alloc
+        
+        # Record Stats
+        total_outstanding = sum(l.principal for l in loans)
+        
+        debt_path.append(max(0, total_outstanding))
+        investment_path.append(current_inv)
+        net_worth_path.append(current_inv - total_outstanding)
+        labels.append(f"M{m+1}")
+        
+    return {
+        "labels": labels,
+        "debt_path": debt_path,
+        "investment_path": investment_path,
+        "net_worth_path": net_worth_path
+    }
+
 def run_simulation_core(income, fixed_expenses, loans_data, strategy_name, months=120):
     # Deep copy loans so simulations don't interfere
     loans = [Loan(l['name'], l['principal'], l['roi'], l['emi'], l.get('tenure', 0), l.get('months_left', 0)) for l in loans_data]

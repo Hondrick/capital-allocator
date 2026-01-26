@@ -24,5 +24,19 @@ export const SimulationApi = {
             alert("Could not connect to backend. Please ensure 'python3 app.py' is running!");
             throw e;
         }
+    },
+
+    async recalculatePath(loansData, allocations) {
+        const response = await fetch('/api/recalculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                loans: loansData,
+                allocations: allocations
+            })
+        });
+
+        if (!response.ok) throw new Error("Recalculation Failed");
+        return await response.json();
     }
 };

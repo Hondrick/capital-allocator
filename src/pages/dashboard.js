@@ -4,7 +4,7 @@
 import { Storage } from '../state/storage.js';
 import { SlidersUI } from '../ui/sliders.js';
 import { ChartsUI } from '../ui/charts.js';
-import { runClientSideSimulation } from '../core/debtSimulator.js';
+import { SimulationApi } from '../api/simulationApi.js';
 
 const DashboardPage = {
     state: {
@@ -104,13 +104,21 @@ const DashboardPage = {
         this.runSimulation();
     },
 
-    runSimulation() {
-        const res = runClientSideSimulation(
-            this.state.loans,
-            this.state.allocations
-        );
+    async runSimulation() {
+        // Use Server API now
+        try {
+            const res = await SimulationApi.recalculatePath(
+                this.state.loans,
+                this.state.allocations
+            );
 
-        ChartsUI.render(res.labels, res.debtPath, res.investmentPath, res.netWorthPath);
+            // Map API response to ChartsUI format
+            // API returns: labels, debt_path, investment_path, net_worth_path
+            ChartsUI.render(res.labels, res.debt_path, res.investment_path, res.net_worth_path);
+
+        } catch (e) {
+            console.error("Simulation Failed", e);
+        }
     }
 };
 

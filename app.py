@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify, send_file
-from engine import run_simulation_core
+from flask import Flask, request, jsonify, send_file, abort
+from engine import run_simulation_core, run_custom_simulation
+import os
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
@@ -11,22 +12,35 @@ def home():
 def dashboard():
     return send_file('dashboard.html')
 
-@app.route('/financial-engine.js')
-def engine_js():
-    return send_file('financial-engine.js')
+# Secure Static File Serving
+# Only allow specific extensions to prevent directory traversal or source leakage
+ALLOWED_EXTENSIONS = {'.html', '.css', '.js', '.png', '.jpg', '.ico', '.svg'}
 
-# Serve other static files if needed (css/js)
 @app.route('/<path:path>')
 def static_files(path):
+    # Security Check
+    _, ext = os.path.splitext(path)
+    if ext.lower() not in ALLOWED_EXTENSIONS:
+        return abort(403) # Forbidden
+        
+    if '..' in path or path.startswith('/'):
+        return abort(403)
+        
     return send_file(path)
 
 @app.route('/api/simulate', methods=['POST'])
 def simulate():
     data = request.json
     income = data.get('income', 0)
-    fixed_expenses = data.get('fixed_expenses', 0) 
     loans_data = data.get('loans', [])
+    fixed_expenses = data.get('fixed_expenses', 0)
     
+    # Validation
+    if not isinstance(income, (int, float)) or income < 0:
+        return jsonify({"error": "Invalid income"}), 400
+    if not isinstance(loans_data, list):
+         return jsonify({"error": "Loans must be a list"}), 400
+
     # Run Baseline first to compare
     baseline = run_simulation_core(income, fixed_expenses, loans_data, "Baseline (Minimums Only)")
     
@@ -48,6 +62,23 @@ def simulate():
         
         results[strat] = res
 
+    return jsonify(results)
+
+@app.route('/api/recalculate', methods=['POST'])
+def recalculate():
+    """
+    New Endpoint for Dashboard interactivity.
+    Takes explicit allocations and runs the secure Python engine.
+    """
+    data = request.json
+    loans_data = data.get('loans', [])
+    allocations = data.get('allocations', {})
+    
+    # Validate
+    if not isinstance(loans_data, list):
+         return jsonify({"error": "Loans must be a list"}), 400
+         
+    results = run_custom_simulation(loans_data, allocations)
     return jsonify(results)
 
 if __name__ == '__main__':
