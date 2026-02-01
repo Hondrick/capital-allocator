@@ -35,6 +35,14 @@ const DashboardPage = {
             this.handleAllocationChange(key, val);
         });
 
+        // 4. Bind CFO Button
+        const btnCfo = document.getElementById("btn-ask-cfo");
+        if (btnCfo) {
+            btnCfo.addEventListener("click", () => {
+                this.askCFO();
+            });
+        }
+
         this.runSimulation();
     },
 
@@ -118,6 +126,49 @@ const DashboardPage = {
 
         } catch (e) {
             console.error("Simulation Failed", e);
+        }
+    },
+
+    async askCFO() {
+        const outputDiv = document.getElementById("cfo-output");
+        const btn = document.getElementById("btn-ask-cfo");
+        
+        // 1. Set Loading State
+        outputDiv.innerHTML = "Analyzing your financials... (This may take 5-10s)";
+        outputDiv.style.color = "#94a3b8"; 
+        btn.disabled = true;
+        btn.textContent = "Thinking...";
+
+        try {
+            // 2. Get fresh simulation data to send to the Agent
+            const currentSimData = await SimulationApi.recalculatePath(
+                this.state.loans,
+                this.state.allocations
+            );
+
+            // 3. Call your Python Backend
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentSimData)
+            });
+
+            const data = await response.json();
+            
+            // 4. Display Result
+            if (data.error) {
+                 outputDiv.innerHTML = `<span style="color:#ef4444">Error: ${data.error}</span>`;
+            } else {
+                 // Format the output slightly for readability
+                 outputDiv.innerHTML = `<span style="color:#f8fafc">${data.message}</span>`;
+            }
+            
+        } catch (e) {
+            console.error(e);
+            outputDiv.innerHTML = `<span style="color:#ef4444">Connection failed. Check console.</span>`;
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Get Analysis";
         }
     }
 };

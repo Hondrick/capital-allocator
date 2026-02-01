@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, send_file, abort
 from engine import run_simulation_core, run_custom_simulation
+# --- NEW IMPORT ---
+from cfo import get_cfo_analysis
 import os
 
 app = Flask(__name__, static_folder='.', static_url_path='')
@@ -80,6 +82,26 @@ def recalculate():
          
     results = run_custom_simulation(loans_data, allocations)
     return jsonify(results)
+
+# --- NEW ROUTE ---
+@app.route('/api/analyze', methods=['POST'])
+def analyze_strategy():
+    data = request.json
+    
+    # Simple validation
+    if not data:
+        return jsonify({"error": "No simulation data provided"}), 400
+
+    try:
+        # Pass the data to your CrewAI agent
+        # Wrap result in str() to ensure JSON serialization works
+        analysis_result = str(get_cfo_analysis(data))
+        
+        return jsonify({"message": analysis_result})
+        
+    except Exception as e:
+        print(f"CFO Agent Error: {e}")
+        return jsonify({"error": "The CFO is currently unavailable."}), 500
 
 if __name__ == '__main__':
     print("Starting Flask server on port 5000...")
