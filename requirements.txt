@@ -1,5 +1,6 @@
 flask
 gunicorn
-crewai
-python-dotenv
 pandas
+python-dotenv
+crewai
+litellm

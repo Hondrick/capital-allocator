@@ -1,26 +1,47 @@
-# Capital Allocator
+# Capital Allocator (AI-Powered)
 
-A financial simulation tool for debt payoff and wealth building strategies.
+A financial simulation tool that combines deterministic math with agentic AI. It features a "Ruthless CFO" agent that analyzes your financial projections and provides strategic advice.
 
-## Running Locally
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run server: `python3 app.py`
-3. Open `http://localhost:5000`
+## 🚀 Features
+- **Deterministic Engine:** Python-based simulation for debt payoffs.
+- **Agentic AI:** A "Ruthless CFO" agent (powered by Groq/Llama-3) that critiques your strategy.
+- **Interactive Dashboard:** Real-time charts to visualize Net Worth.
 
-## How to Deploy (Render.com) - Free
-This projects is setup for easy deployment on Render.
+## 🛠 Prerequisites
+- **Python 3.10, 3.11, or 3.12** (Python 3.14 is NOT supported).
+- **Groq API Key** (Free from console.groq.com).
 
-1. **Push to GitHub**:
-   - Create a repo on GitHub.
-   - Initialise git: `git init`, `git add .`, `git commit -m "Initial config"`.
-   - Push your code.
+## 📦 Installation
 
-2. **Deploy on Render**:
-   - Go to [dashboard.render.com](https://dashboard.render.com).
-   - Click **New +** -> **Web Service**.
-   - Connect your GitHub repo.
-   - **Build Command**: `pip install -r requirements.txt` (Default)
-   - **Start Command**: `gunicorn app:app` (It might auto-detect this from `Procfile`)
-   - Click **Deploy**.
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd "capital allocator"
+   ```
 
-That's it! You'll get a URL like `capital-allocator.onrender.com` to share with friends.
+2. **Set up Virtual Environment:**
+   ```bash
+   python3.11 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure Secrets:**
+   Create a `.env` file in the root folder:
+   ```text
+   GROQ_API_KEY=gsk_your_actual_api_key_here
+   ```
+
+## ▶️ Running Locally
+Start the Flask server:
+```bash
+python3 app.py
+```
+Open your browser to: `http://localhost:5000`
+
+## 🤖 AI Agents
+- **Ruthless CFO:** Analyzes simulation JSON data to find inefficiencies in debt payment vs. investment allocation.
